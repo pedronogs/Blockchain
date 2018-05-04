@@ -100,12 +100,12 @@ class Block{
             string the_hash = SHA256(aux);
             return the_hash;
         }
-        Block* get_chain()
+        Block *get_chain()
         {
             return chain;
         }
 
-        void set_chain(Block* p)
+        void set_chain(Block *p)
         {
             chain = p;
         }
@@ -142,7 +142,7 @@ class BlockChain{
             else
                 hash_anterior = ultimo->get_hash();
 
-            Block* novo_bloco = new Block(indice, data_do_voto, voto, hash_anterior, cpf);
+            Block *novo_bloco = new Block(indice, data_do_voto, voto, hash_anterior, cpf);
 
             if(vazia())
             {
@@ -160,101 +160,135 @@ class BlockChain{
         void mostrar()
         {
             cout << "Blocos formados: \n";
-            Block* a = primeiro;
+            Block *a = primeiro;
 
             if(vazia())
-                cout << "O BlockChain ainda está vazio. \n";
+                cout << "O BlockChain ainda esta vazio. \n";
 
             else
             {
                 while(a)
                 {
-                    cout << "Índice         ------- " << a->get_indice() << endl;
+                    cout << "Indice         ------- " << a->get_indice() << endl;
                     cout << "Data do voto   ------- " << a->get_data_do_voto() << endl;
                     cout << "Voto           ------- " << a->get_voto() << endl;
                     cout << "CPF            ------- " << a->get_cpf() << endl;
                     cout << "Hash Anterior  ------- " << a->get_hash_anterior() << endl;
-                    cout << "Hash           ------- " << a->get_hash() << endl << endl << endl;
+                    cout << "Hash           ------- " << a->get_hash() << endl ;
 
                     a = a->get_chain();
                 }
                 cout << endl;
             }
+        }
 
+        void votos () {
+          Block *a = primeiro;
+          int voto[3] = {0,0,0};
+
+          if(vazia())
+              cout << "O BlockChain ainda esta vazio. \n";
+          else {
+            while (a) {
+                if ((a->get_voto()) == 1) voto[0]++;
+                if ((a->get_voto()) == 2) voto[1]++;
+                if ((a->get_voto()) == 3) voto[2]++;
+
+                a = a->get_chain();
+            }
+            cout << "Votos pelo Bolsonaro: " << voto[0] << endl;
+            cout << "Votos pelo Lula: " << voto[1] << endl;
+            cout << "Votos pelo Luciano Huck: " << voto[2] << endl;
+          }
+        }
+
+        bool verifica () {
+          Block *atual = primeiro;
+          string hash_passado = "0";
+
+          while (atual) {
+              if ((atual->get_hash_anterior())!=(hash_passado)) return false;
+              else {
+                cout << hash_passado << endl;
+                cout << atual->get_hash_anterior() << endl;
+
+                hash_passado = atual->get_hash();
+                atual = atual->get_chain();
+              }
+          }
+          cout << endl;
+          return true;
         }
 };
 int main()
 {
     setlocale(LC_ALL, "");
     int menu = 0;
-    system("color 02");
     BlockChain meu_blockchain;
-    int Bolsonaro = 0;
-    int Lula = 0;
-    int Luciano_Huck = 0;
     int j = 1;                                              //int para o indice
-    int aux;                                            //int para o voto
+    int aux;                                               //int para o voto
     string data;                                        //string para data
     string cpf;                                         //string para o cpf
+    bool verificado;
+
     while(menu != 4)
     {
-        cout << "Bem vindo ao Sistema de Eleições feito em BlockChain! \nSelecione o que deseja fazer: \n"
+        cout << "\n"
+             << "Bem vindo ao Sistema de Eleicoes feito em BlockChain! \nSelecione o que deseja fazer: \n"
+             << "\n"
              << "1. Votar! \n"
              << "2. Apresentar o BlockChain formado! \n"
              << "3. Apresentar a quantidade de votos de cada participante. \n"
-             << "4. Sair. \n ";
+             << "4. Sair. \n "
+             << "\n";
+
+        cout << "Opcao selecionada: ";
         cin >> menu;
+        cout << "\n";
 
         switch(menu)
         {
             case 1:
-                cout << "Você selecionou a opção Votar, insira, por favor, o seu cpf: ";
+                cout << "Voce selecionou a opcao 'Votar'. Insira, por favor, o seu CPF: ";
                 cin >> cpf;
+                while (cpf.length()<7) {
+                    cout << "Seu CPF deve conter no minimo 7 numeros: ";
+                    cin >> cpf;
+                }
+                cout << "\n";
 
                 data = __DATE__;
 
-                cout << "Digite o número ao lado do candidato que em que deseja votar: \n"
-                     << "1. Bolsonaro \n"
-                     << "2. Lula \n"
-                     << "3. Luciano Huck \n"
+                cout << "Digite o numero ao lado do candidato que em que deseja votar: \n"
+                     << "1. Mintsu \n"
+                     << "2. Carlo Kleber \n"
+                     << "3. Lula \n"
                      << "Voto : ";
                 cin >> aux;
-
-                switch(aux)
-                {
-                    case 1:
-                        Bolsonaro++;
-                        break;
-                    case 2:
-                        Lula++;
-                        break;
-                    case 3:
-                        Luciano_Huck++;
-                        break;
-                    default:
-                        cout << "Voto inválido, por favor selecione apenas uma das opções acima: ";
-                        cin >> aux;
+                while (aux<1 || aux>3) {
+                  cout << "Voto invalido, por favor selecione apenas uma das opcoes acima: ";
+                  cin >> aux;
                 }
                 meu_blockchain.inserir_bloco(j, data, aux, " ", cpf);
                 j++;
                 break;
             case 2:
-                meu_blockchain.mostrar();
+                verificado = meu_blockchain.verifica();
+                if (verificado==true) {
+                    cout << "Cadeia de blocos vÃ¡lida" << endl << endl;
+                    meu_blockchain.mostrar();
+                  }
+                else cout << "Cadeia de blocos invÃ¡lida" << endl;
                 break;
             case 3:
-                cout << "Votos para Bolsonaro    = " << Bolsonaro << endl;
-                cout << "Votos para Lula         = " << Lula << endl;
-                cout << "Votos para Luciano Huck = " << Luciano_Huck << endl;
+                meu_blockchain.votos();
                 break;
             case 4:
                 break;
             default:
-                cout << "Por favor selecione alguma das opções acima. \n";
+                cout << "Por favor selecione alguma das opcoes acima. \n";
                 cin >> menu;
         }
-
-        system("pause");
-        system("cls");
     }
     return 0;
 
