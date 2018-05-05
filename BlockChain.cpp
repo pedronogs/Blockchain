@@ -219,7 +219,31 @@ class BlockChain{
           cout << endl;
           return true;
         }
+
+        char aleat () {
+          static const char alphanum[] =
+"0123456789"
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz";
+            int stringLength = sizeof(alphanum) - 1;
+            srand(time(NULL));
+            return alphanum[rand() * 3 % stringLength];
+        }
+
+        void proof_of_work() {
+            char *p_o_w = new char[20];
+            string proof;
+            *p_o_w = aleat();
+            proof = SHA256(p_o_w);
+
+            while (proof[0]!='4' || proof[1]!='5') {
+                *p_o_w = aleat();
+                proof = SHA256(p_o_w);
+                cout << proof << endl;
+            }
+        }
 };
+
 int main()
 {
     setlocale(LC_ALL, "");
@@ -269,6 +293,7 @@ int main()
                   cout << "Voto invalido, por favor selecione apenas uma das opcoes acima: ";
                   cin >> aux;
                 }
+                meu_blockchain.proof_of_work();
                 meu_blockchain.inserir_bloco(j, data, aux, " ", cpf);
                 j++;
                 break;
