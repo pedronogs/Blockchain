@@ -227,20 +227,22 @@ class BlockChain{
 "abcdefghijklmnopqrstuvwxyz";
             int stringLength = sizeof(alphanum) - 1;
             srand(time(NULL));
-            return alphanum[rand() * 3 % stringLength];
+            return alphanum[rand() % stringLength];
         }
 
         void proof_of_work() {
-            char *p_o_w = new char[20];
+            char *p_o_w = new char[10];
             string proof;
-            *p_o_w = aleat();
+            *p_o_w = '0';
             proof = SHA256(p_o_w);
 
-            while (proof[0]!='4' || proof[1]!='5') {
-                *p_o_w = aleat();
+            while (proof[0]!='0' || proof[1]!='4') {
+                *p_o_w += aleat();
                 proof = SHA256(p_o_w);
                 cout << proof << endl;
             }
+
+            *p_o_w = '0';
         }
 };
 
@@ -249,10 +251,10 @@ int main()
     setlocale(LC_ALL, "");
     int menu = 0;
     BlockChain meu_blockchain;
-    int j = 1;                                              //int para o indice
+    int j = 1, i=0;                                              //int para o indice
     int aux;                                               //int para o voto
     string data;                                        //string para data
-    string cpf;                                         //string para o cpf
+    string cpf;                                             //string para o cpf
     bool verificado;
 
     while(menu != 4)
