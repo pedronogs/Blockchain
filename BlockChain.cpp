@@ -9,6 +9,17 @@
 
 using namespace std;
 
+string randomstring () {
+    static const string charList = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    string alphanumeric = "";
+
+    for(int i = 0; i < 10; i++) {
+      alphanumeric += charList [rand() % charList.size()];
+    }
+    return alphanumeric;
+}
+
 class Block{
     private:
         int indice;
@@ -16,6 +27,7 @@ class Block{
         int voto;
         string hash_do_bloco;
         string hash_anterior;
+        string hash_proof;
         string cpf;
         Block *chain;
 
@@ -27,6 +39,7 @@ class Block{
             this->voto = voto;
             this->hash_anterior = hash_anterior;
             this->hash_do_bloco = this->calcular_hash();
+            this->hash_proof = this->proof_of_work(5);
             this->cpf = cpf;
             this->chain = NULL;
         }
@@ -54,6 +67,11 @@ class Block{
         string get_hash_anterior()
         {
             return hash_anterior;
+        }
+
+        string get_proof_of_work()
+        {
+          return hash_proof;
         }
 
         string get_cpf()
@@ -100,6 +118,37 @@ class Block{
             string the_hash = SHA256(aux);
             return the_hash;
         }
+
+        string proof_of_work(int difficulty) {
+          char cstr[difficulty + 1];
+          for (int i = 0; i < difficulty; ++i) {
+              cstr[i] = '0';
+          }
+          cstr[difficulty] = '\0';
+
+          srand(time(NULL));
+
+          string zeroes(cstr), aleat = randomstring(), hashed, zeroes_hashed;
+          char *proof = new char[10];
+
+          for (int i = 0; i < 10; i++ ) {
+            proof[i] = aleat[i];
+          }
+
+          hashed = SHA256(proof);
+          zeroes_hashed = hashed.substr(0,difficulty);
+
+          while (zeroes_hashed != zeroes ) {
+            aleat = randomstring();
+            for (int i = 0; i < 10; i++ ) {
+              proof[i] = aleat[i];
+            }
+            hashed = SHA256(proof);
+            zeroes_hashed = hashed.substr(0,difficulty);
+          }
+        return hashed;
+        }
+
         Block *get_chain()
         {
             return chain;
@@ -109,7 +158,6 @@ class Block{
         {
             chain = p;
         }
-
 };
 
 class BlockChain{
@@ -175,6 +223,7 @@ class BlockChain{
                     cout << "CPF            ------- " << a->get_cpf() << endl;
                     cout << "Hash Anterior  ------- " << a->get_hash_anterior() << endl;
                     cout << "Hash           ------- " << a->get_hash() << endl ;
+                    cout << "POW Hash       ------- " << a->get_proof_of_work() << endl << endl;
 
                     a = a->get_chain();
                 }
@@ -207,7 +256,7 @@ class BlockChain{
           string hash_passado = "0";
 
           while (atual) {
-              if ((atual->get_hash_anterior())!=(hash_passado)) return false;
+              if ((atual->get_hash_anterior()) != (hash_passado)) return false;
               else {
                 cout << hash_passado << endl;
                 cout << atual->get_hash_anterior() << endl;
@@ -219,31 +268,6 @@ class BlockChain{
           cout << endl;
           return true;
         }
-
-        char aleat () {
-          static const char alphanum[] =
-"0123456789"
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-"abcdefghijklmnopqrstuvwxyz";
-            int stringLength = sizeof(alphanum) - 1;
-            srand(time(NULL));
-            return alphanum[rand() % stringLength];
-        }
-
-        void proof_of_work() {
-            char *p_o_w = new char[10];
-            string proof;
-            *p_o_w = '0';
-            proof = SHA256(p_o_w);
-
-            while (proof[0]!='0' || proof[1]!='4') {
-                *p_o_w += aleat();
-                proof = SHA256(p_o_w);
-                cout << proof << endl;
-            }
-
-            *p_o_w = '0';
-        }
 };
 
 int main()
@@ -254,7 +278,8 @@ int main()
     int j = 1, i=0;                                              //int para o indice
     int aux;                                               //int para o voto
     string data;                                        //string para data
-    string cpf;                                             //string para o cpf
+    string cpf;
+    string proof;
     bool verificado;
 
     while(menu != 4)
@@ -295,7 +320,6 @@ int main()
                   cout << "Voto invalido, por favor selecione apenas uma das opcoes acima: ";
                   cin >> aux;
                 }
-                meu_blockchain.proof_of_work();
                 meu_blockchain.inserir_bloco(j, data, aux, " ", cpf);
                 j++;
                 break;
