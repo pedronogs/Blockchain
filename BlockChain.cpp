@@ -1,4 +1,5 @@
 #include "sha256.h"
+#include "Database.h"
 #include <stdlib.h>
 #include <string>
 #include <sstream>
@@ -125,8 +126,6 @@ class Block{
               cstr[i] = '0';
           }
           cstr[difficulty] = '\0';
-
-          srand(time(NULL));
 
           string zeroes(cstr), aleat = randomstring(), hashed, zeroes_hashed;
           char *proof = new char[10];
@@ -272,6 +271,7 @@ class BlockChain{
 
 int main()
 {
+    srand(time(NULL));
     setlocale(LC_ALL, "");
     int menu = 0;
     BlockChain meu_blockchain;
@@ -280,7 +280,7 @@ int main()
     string data;                                        //string para data
     string cpf;
     string proof;
-    bool verificado;
+    bool verificado, found_cpf = false;
 
     while(menu != 4)
     {
@@ -302,11 +302,14 @@ int main()
             case 1:
                 cout << "Voce selecionou a opcao 'Votar'. Insira, por favor, o seu CPF: ";
                 cin >> cpf;
-                while (cpf.length()<7) {
-                    cout << "Seu CPF deve conter no minimo 7 numeros: ";
+                while (found_cpf == false) {
+                  found_cpf = findCPF(cpf);
+                  if (found_cpf == false) {
+                    cout  << "CPF inválido, tente novamente: ";
                     cin >> cpf;
+                  }
                 }
-                cout << "\n";
+                found_cpf = false;
 
                 data = __DATE__;
 
@@ -325,7 +328,7 @@ int main()
                 break;
             case 2:
                 verificado = meu_blockchain.verifica();
-                if (verificado==true) {
+                if (verificado == true) {
                     cout << "Cadeia de blocos válida" << endl << endl;
                     meu_blockchain.mostrar();
                   }
@@ -336,12 +339,13 @@ int main()
                 break;
             case 4:
                 break;
+            case 5:
+                databaseRegister();
+                break;
             default:
                 cout << "Por favor selecione alguma das opcoes acima. \n";
                 cin >> menu;
         }
     }
     return 0;
-
-
 }
