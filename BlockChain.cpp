@@ -7,6 +7,7 @@
 #include <iostream>
 #include <clocale>
 #include <time.h>
+#include <fstream>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ class Block{
             this->voto = voto;
             this->hash_anterior = hash_anterior;
             this->hash_do_bloco = this->calcular_hash();
-            this->hash_proof = this->proof_of_work(5);
+            this->hash_proof = this->proof_of_work(4);
             this->cpf = cpf;
             this->chain = NULL;
         }
@@ -143,6 +144,7 @@ class Block{
               proof[i] = aleat[i];
             }
             hashed = SHA256(proof);
+            cout << hashed << endl;
             zeroes_hashed = hashed.substr(0,difficulty);
           }
         return hashed;
@@ -208,12 +210,15 @@ class BlockChain{
         {
             cout << "Blocos formados: \n";
             Block *a = primeiro;
+            ofstream myfile;
 
             if(vazia())
                 cout << "O BlockChain ainda esta vazio. \n";
 
             else
             {
+                myfile.open("Blockchain_register.txt", ios::trunc);
+                myfile.close();
                 while(a)
                 {
                     cout << "Indice         ------- " << a->get_indice() << endl;
@@ -223,6 +228,19 @@ class BlockChain{
                     cout << "Hash Anterior  ------- " << a->get_hash_anterior() << endl;
                     cout << "Hash           ------- " << a->get_hash() << endl ;
                     cout << "POW Hash       ------- " << a->get_proof_of_work() << endl << endl;
+
+                    myfile.open ("Blockchain_register.txt", ios::app);
+                      if (myfile.is_open()) {
+                        myfile << a->get_indice() << " ---- ";
+                        myfile << a->get_data_do_voto() << " ---- ";
+                        myfile << a->get_voto() << " ---- ";
+                        myfile << a->get_cpf() << " ---- " << endl;
+                        myfile << a->get_hash_anterior() << endl;
+                        myfile << a->get_hash() << endl;
+                        myfile << a->get_proof_of_work() << endl;
+                        myfile << endl;
+                      }
+                    myfile.close();
 
                     a = a->get_chain();
                 }
@@ -290,7 +308,8 @@ int main()
              << "1. Votar! \n"
              << "2. Apresentar o BlockChain formado! \n"
              << "3. Apresentar a quantidade de votos de cada participante. \n"
-             << "4. Sair. \n "
+             << "4. Sair. \n"
+             << "5. Criar database. \n"
              << "\n";
 
         cout << "Opcao selecionada: ";
@@ -340,6 +359,7 @@ int main()
             case 4:
                 break;
             case 5:
+                cout << "Database criada, não rode novamente" << endl;
                 databaseRegister();
                 break;
             default:

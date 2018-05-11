@@ -27,7 +27,7 @@ string randomNumber () {
 
 void databaseRegister () {
   ofstream myfile;
-  myfile.open ("Population_myfile.txt");
+  myfile.open ("Population_register.txt");
 
   int i = 0;
   string nome, cpf;
@@ -45,7 +45,7 @@ bool findCPF (string cpf) {
   string linha;
 
   ifstream myfile;
-  myfile.open ("Population_myfile.txt");
+  myfile.open ("Population_register.txt");
 
   for (int i = 0; i<2000; i++) {
     getline (myfile, linha, '\n');
